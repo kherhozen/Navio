@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import time
 import math
 from adafruit_i2c import Adafruit_I2C
