@@ -1,6 +1,7 @@
 import smbus
 import time
 from signal import pause
+from gpiozero import LED
 
 i2cbus = smbus.SMBus(1)
 address = 0x40
@@ -43,6 +44,9 @@ def set_pwm(bus, channel, on, off):
     bus.write_byte_data(address, __LED0_OFF_H + 4 * channel, off >> 8)
 
 # Init
+pin = LED(27)
+pin.off()
+
 set_all_pwm(i2cbus, 0, 0)
 i2cbus.write_byte_data(address, __MODE2, __OUTDRV)
 i2cbus.write_byte_data(address, __MODE1, __ALLCALL)
