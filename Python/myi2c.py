@@ -57,6 +57,10 @@ mode1 = mode1 & ~__SLEEP  # wake up (reset sleep)
 i2cbus.write_byte_data(address, __MODE1, mode1)
 time.sleep(0.005)  # wait for oscillator
 
-set_pwm(i2cbus, 0, 0, 4095)
-
+set_pwm(i2cbus, 2, 4095, 0)
+time.sleep(2)
+set_pwm(i2cbus, 0, 4095, 0)
+time.sleep(2)
+set_pwm(i2cbus, 1, 4095, 0)
+time.sleep(2)
 pause()
