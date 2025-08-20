@@ -1,5 +1,6 @@
 import smbus
 import time
+from signal import pause
 
 i2cbus = smbus.SMBus(1)
 address = 0x40
@@ -53,3 +54,5 @@ i2cbus.write_byte_data(address, __MODE1, mode1)
 time.sleep(0.005)  # wait for oscillator
 
 set_pwm(i2cbus, 0, 0, 4095)
+
+pause()
