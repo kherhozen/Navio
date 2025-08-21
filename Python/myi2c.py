@@ -113,10 +113,10 @@ if __name__ == '__main__':
     led = NavioLED(pwm)
     led.pwm.start()
 
-    while True:
-        led.pulse(led.RED)
-        led.pulse(led.BLUE)
-        led.pulse(led.GREEN)
-        led.pulse(led.PURPLE)
-        led.pulse(led.YELLOW)
-        led.pulse(led.CYAN)
+    led.pulse(led.RED)
+    led.pulse(led.BLUE)
+    led.pulse(led.GREEN)
+    led.pulse(led.PURPLE)
+    led.pulse(led.YELLOW)
+    led.pulse(led.CYAN)
+    led.off()
