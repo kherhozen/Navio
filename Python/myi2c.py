@@ -1,6 +1,6 @@
 import smbus
 import time
-from signal import pause
+from signal import signal, SIGTERM
 from gpiozero import LED
 
 class NavioPWM:
@@ -62,6 +62,9 @@ class NavioPWM:
         self.bus.write_byte_data(self.address, self.__MODE1, mode1)
         time.sleep(0.005)  # wait for oscillator
 
+    def stop(self):
+        self.pin_enable.on()
+
 class NavioLED:
 
     __R_CHANNEL = 2
@@ -107,16 +110,23 @@ class NavioLED:
                 time.sleep(step)
             i += 1
 
+run = True
+
+def stop(signum, frame):
+    global run
+    run = False
+
+signal(SIGTERM, stop)
+
 if __name__ == '__main__':
     pwm = NavioPWM()
     pwm.start()
     led = NavioLED(pwm)
-    led.pwm.start()
-
-    led.pulse(led.RED)
-    led.pulse(led.BLUE)
-    led.pulse(led.GREEN)
-    led.pulse(led.PURPLE)
-    led.pulse(led.YELLOW)
-    led.pulse(led.CYAN)
-    led.off()
+    while run:
+        led.pulse(led.RED)
+        led.pulse(led.BLUE)
+        led.pulse(led.GREEN)
+        led.pulse(led.PURPLE)
+        led.pulse(led.YELLOW)
+        led.pulse(led.CYAN)
+    pwm.stop()
