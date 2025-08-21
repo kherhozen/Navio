@@ -69,10 +69,10 @@ class NavioLED:
     __B_CHANNEL = 0
 
     RED = (1, 0, 0)
-    BLUE = (0, 1, 0)
-    GREEN = (0, 0, 1)
-    PURPLE = (1, 1, 0)
-    YELLOW = (1, 0, 1)
+    GREEN = (0, 1, 0)
+    BLUE = (0, 0, 1)
+    YELLOW = (1, 1, 0)
+    PURPLE = (1, 0, 1)
     CYAN = (0, 1, 1)
 
     def __init__(self, pwm):
@@ -86,7 +86,7 @@ class NavioLED:
     def off(self):
         self.on((0, 0, 0))
 
-    def pulse(self, color=(1.0, 1.0, 1.0), on=0.0, off=0.0, fade_in=1.0, fade_out=1.0, cycles=1):
+    def pulse(self, color=(1.0, 1.0, 1.0), on=0.0, off=0.0, fade_in=1.0, fade_out=0.5, cycles=2):
         i = 0
         step = 0.01
         on_steps = int(on/step)
@@ -113,9 +113,10 @@ if __name__ == '__main__':
     led = NavioLED(pwm)
     led.pwm.start()
 
-    led.pulse(led.RED)
-    led.pulse(led.BLUE)
-    led.pulse(led.GREEN)
-    led.pulse(led.PURPLE)
-    led.pulse(led.YELLOW)
-    led.pulse(led.CYAN)
+    while True:
+        led.pulse(led.RED)
+        led.pulse(led.BLUE)
+        led.pulse(led.GREEN)
+        led.pulse(led.PURPLE)
+        led.pulse(led.YELLOW)
+        led.pulse(led.CYAN)
