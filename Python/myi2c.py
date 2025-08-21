@@ -42,7 +42,7 @@ class NavioPWM:
         self.bus.write_byte_data(self.address, self.__ALL_LED_OFF_L, off & 0xFF)
         self.bus.write_byte_data(self.address, self.__ALL_LED_OFF_H, off >> 8)
 
-    def set_pwm(self, channel, duty_cycle=0.5, delay=0):
+    def set_pwm(self, channel, duty_cycle=0.5, delay=0.0):
         if delay + duty_cycle <= 1:
             on = int(delay*4095)
             off = int(duty_cycle*4095) + on
@@ -78,15 +78,15 @@ class NavioLED:
     def __init__(self):
         self.pwm = NavioPWM()
 
-    def on(self, color=(1, 1, 1)):
-        self.pwm.set_pwm(self.__R_CHANNEL, 1 - color[0])
-        self.pwm.set_pwm(self.__G_CHANNEL, 1 - color[1])
-        self.pwm.set_pwm(self.__B_CHANNEL, 1 - color[2])
+    def on(self, color=(1.0, 1.0, 1.0), saturation=1.0):
+        self.pwm.set_pwm(self.__R_CHANNEL, 1 - color[0]*saturation)
+        self.pwm.set_pwm(self.__G_CHANNEL, 1 - color[1]*saturation)
+        self.pwm.set_pwm(self.__B_CHANNEL, 1 - color[2]*saturation)
 
     def off(self):
         self.on((0, 0, 0))
 
-    def pulse(self, color=(1, 1, 1), on=0, off=0, fade_in=1, fade_out=1, cycles=1):
+    def pulse(self, color=(1.0, 1.0, 1.0), on=0.0, off=0.0, fade_in=1.0, fade_out=1.0, cycles=1):
         i = 0
         step = 0.01
         on_steps = int(on/step)
@@ -98,12 +98,12 @@ class NavioLED:
             for s in range(off_steps):
                 time.sleep(step)
             for s in range(fade_in_steps):
-                self.on(color*s/(fade_in_steps-1))
+                self.on(color, s/(fade_in_steps-1))
                 time.sleep(step)
             for s in range(on_steps):
                 time.sleep(step)
             for s in range(fade_out_steps):
-                self.on(color*(1-s/(fade_out_steps-1)))
+                self.on(color, (1-s/(fade_out_steps-1)))
                 time.sleep(step)
 
 if __name__ == '__main__':
