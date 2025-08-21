@@ -75,8 +75,8 @@ class NavioLED:
     YELLOW = (1, 0, 1)
     CYAN = (0, 1, 1)
 
-    def __init__(self):
-        self.pwm = NavioPWM()
+    def __init__(self, pwm):
+        self.pwm = pwm
 
     def on(self, color=(1.0, 1.0, 1.0), saturation=1.0):
         self.pwm.set_pwm(self.__R_CHANNEL, 1 - color[0]*saturation)
@@ -107,7 +107,10 @@ class NavioLED:
                 time.sleep(step)
 
 if __name__ == '__main__':
-    led = NavioLED()
+    pwm = NavioPWM()
+    pwm.start()
+    led = NavioLED(pwm)
+    led.pwm.start()
     led.on(led.RED)
     time.sleep(2)
     led.pulse(led.RED)
