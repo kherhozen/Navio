@@ -105,6 +105,7 @@ class NavioLED:
             for s in range(fade_out_steps):
                 self.on(color, (1-s/(fade_out_steps-1)))
                 time.sleep(step)
+            i += 1
 
 if __name__ == '__main__':
     pwm = NavioPWM()
