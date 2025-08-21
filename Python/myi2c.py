@@ -79,9 +79,9 @@ class NavioLED:
         self.pwm = NavioPWM()
 
     def on(self, color=(1, 1, 1)):
-        self.pwm.set_pwm(self.__R_CHANNEL, 1 - color(0))
-        self.pwm.set_pwm(self.__G_CHANNEL, 1 - color(1))
-        self.pwm.set_pwm(self.__B_CHANNEL, 1 - color(2))
+        self.pwm.set_pwm(self.__R_CHANNEL, 1 - color[0])
+        self.pwm.set_pwm(self.__G_CHANNEL, 1 - color[1])
+        self.pwm.set_pwm(self.__B_CHANNEL, 1 - color[2])
 
     def off(self):
         self.on((0, 0, 0))
