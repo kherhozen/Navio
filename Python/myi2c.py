@@ -108,6 +108,8 @@ class NavioLED:
 
 if __name__ == '__main__':
     led = NavioLED()
+    led.on(led.RED)
+    time.sleep(2)
     led.pulse(led.RED)
     led.pulse(led.BLUE)
     led.pulse(led.GREEN)
