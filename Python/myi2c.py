@@ -112,8 +112,7 @@ if __name__ == '__main__':
     pwm.start()
     led = NavioLED(pwm)
     led.pwm.start()
-    led.on(led.RED)
-    time.sleep(2)
+
     led.pulse(led.RED)
     led.pulse(led.BLUE)
     led.pulse(led.GREEN)
