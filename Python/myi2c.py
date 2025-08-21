@@ -36,12 +36,17 @@ def set_all_pwm(bus, on, off):
     bus.write_byte_data(address, __ALL_LED_OFF_L, off & 0xFF)
     bus.write_byte_data(address, __ALL_LED_OFF_H, off >> 8)
 
-def set_pwm(bus, channel, on, off):
-    """Sets a single PWM channel"""
-    bus.write_byte_data(address, __LED0_ON_L + 4 * channel, on & 0xFF)
-    bus.write_byte_data(address, __LED0_ON_H + 4 * channel, on >> 8)
-    bus.write_byte_data(address, __LED0_OFF_L + 4 * channel, off & 0xFF)
-    bus.write_byte_data(address, __LED0_OFF_H + 4 * channel, off >> 8)
+def set_pwm(bus, channel, duty_cycle=0.5, delay=0):
+    if (delay + duty_cycle <= 1):
+        on = int(delay*4095)
+        off = int(duty_cycle*4095) + on
+        bus.write_byte_data(address, __LED0_ON_L + 4 * channel, on & 0xFF)
+        bus.write_byte_data(address, __LED0_ON_H + 4 * channel, on >> 8)
+        bus.write_byte_data(address, __LED0_OFF_L + 4 * channel, off & 0xFF)
+        bus.write_byte_data(address, __LED0_OFF_H + 4 * channel, off >> 8)
+
+def set_led(bus, channel, saturation=1):
+    set_pwm(bus, channel, 1-saturation)
 
 # Init
 pin = LED(27)
@@ -57,20 +62,20 @@ mode1 = mode1 & ~__SLEEP  # wake up (reset sleep)
 i2cbus.write_byte_data(address, __MODE1, mode1)
 time.sleep(0.005)  # wait for oscillator
 
-set_pwm(i2cbus, 2, 0, 4095)
-set_pwm(i2cbus, 1, 0, 4095)
-set_pwm(i2cbus, 0, 0, 4095)
+set_led(i2cbus, 2, 0)
+set_led(i2cbus, 1, 0)
+set_led(i2cbus, 0, 0)
 print("dark")
 time.sleep(2)
-set_pwm(i2cbus, 2, 0, 0)
+set_led(i2cbus, 2, 1)
 print("red")
 time.sleep(2)
-set_pwm(i2cbus, 2, 0, 4095)
-set_pwm(i2cbus, 0, 0, 0)
+set_led(i2cbus, 2, 0)
+set_led(i2cbus, 0, 1)
 print("blue")
 time.sleep(2)
-set_pwm(i2cbus, 0, 0, 4095)
-set_pwm(i2cbus, 1, 0, 0)
+set_led(i2cbus, 0, 0)
+set_led(i2cbus, 1, 1)
 print("green")
 time.sleep(2)
 pause()
