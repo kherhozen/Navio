@@ -112,21 +112,18 @@ class NavioLED:
 
 run = True
 
-def stop(signum, frame):
-    global run
-    run = False
-
-signal(SIGTERM, stop)
-
 if __name__ == '__main__':
     pwm = NavioPWM()
     pwm.start()
     led = NavioLED(pwm)
     while run:
-        led.pulse(led.RED)
-        led.pulse(led.BLUE)
-        led.pulse(led.GREEN)
-        led.pulse(led.PURPLE)
-        led.pulse(led.YELLOW)
-        led.pulse(led.CYAN)
+        with open('conf_led', 'r') as f:
+            mode = int(f.read().split(',')[0])
+            rgb = tuple(map(float, f.read().split(',')[1:4]))
+            if mode == 0:
+                run = False
+            elif mode == 1:
+                led.on(rgb)
+            elif mode == 2:
+                led.pulse(rgb)
     pwm.stop()
