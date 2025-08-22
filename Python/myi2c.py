@@ -121,7 +121,6 @@ if __name__ == '__main__':
             conf_led = f.read().split(',')
             mode = int(conf_led[0])
             rgb = tuple(map(float, conf_led[1:4]))
-            print(rgb)
             if mode == 0:
                 run = False
             elif mode == 1:
