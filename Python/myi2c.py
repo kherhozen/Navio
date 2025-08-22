@@ -120,12 +120,17 @@ if __name__ == '__main__':
     while run:
         with open('/home/kherhozen/sources/Navio/Python/conf_led', 'r') as f:
             conf_led = f.read().split(',')
-            mode = int(conf_led[0])
-            rgb = tuple(map(float, conf_led[1:4]))
-            if mode == 0:
-                run = False
-            elif mode == 1:
-                led.on(rgb)
-            elif mode == 2:
-                led.pulse(rgb)
+            try:
+                mode = int(conf_led[0])
+                rgb = tuple(map(float, conf_led[1:4]))
+            except ValueError:
+                pass
+            else:
+                if mode == 0:
+                    run = False
+                elif mode == 1:
+                    led.on(rgb)
+                elif mode == 2:
+                    led.pulse(rgb)
+        time.sleep(0.01)
     pwm.stop()
