@@ -117,9 +117,9 @@ if __name__ == '__main__':
     pwm.start()
     led = NavioLED(pwm)
     while run:
-        with open('conf_led', 'r') as f:
-            mode = int(f.read().split(',')[0])
-            rgb = tuple(map(float, f.read().split(',')[1:4]))
+        with open('conf_led', 'r').read().split(',') as conf_led:
+            mode = int(conf_led[0])
+            rgb = tuple(map(float, conf_led[1:4]))
             print(rgb)
             if mode == 0:
                 run = False
