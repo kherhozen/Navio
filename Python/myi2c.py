@@ -102,8 +102,12 @@ class NavioLED:
 
     def on(self):
         if self.pulse_thread.is_alive():
+            print(self.pulse_thread)
+            print(self.pulse_thread.is_alive())
             self.pulse_run = False
             self.pulse_thread.join()
+            print(self.pulse_thread)
+            print(self.pulse_thread.is_alive())
         self.set(self.color, self.saturation)
 
     def off(self):
