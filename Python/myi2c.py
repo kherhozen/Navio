@@ -92,7 +92,7 @@ class NavioLED:
     def set_saturation(self, saturation=1.0):
         self.saturation = saturation
 
-    def set(self, color, saturation):
+    def set(self, color=(1.0, 1.0, 1.0), saturation=1.0):
         self.pwm.set_pwm(self.__R_CHANNEL, 1 - color[0]*saturation)
         self.pwm.set_pwm(self.__G_CHANNEL, 1 - color[1]*saturation)
         self.pwm.set_pwm(self.__B_CHANNEL, 1 - color[2]*saturation)
@@ -120,22 +120,22 @@ class NavioLED:
         fade_in_steps = int(fade_in/step)
         fade_out_steps = int(fade_out/step)
         while self.pulse_run and (cycles == 0 or i < cycles):
-            self.off()
+            self.set((0, 0, 0), 0)
             s = 0
             while self.pulse_run:
                 if off_steps < s < off_steps + fade_in_steps:
                     self.set_saturation((s-off_steps)/(fade_in_steps-1))
-                    self.on()
+                    self.set(self.color, self.saturation)
                 elif off_steps + fade_in_steps + on_steps < s < off_steps + fade_in_steps + on_steps + fade_out_steps:
                     self.set_saturation(1-(s-off_steps-fade_in_steps-on_steps)/(fade_out_steps-1))
-                    self.on()
+                    self.set(self.color, self.saturation)
                 elif s >= off_steps + fade_in_steps + on_steps + fade_out_steps:
                     break
                 s += 1
                 time.sleep(step)
             i += 1
         self.pulse_run = False
-        self.on()
+        self.set(self.color, 1.0)
 
     def pulse(self):
         if not self.pulse_thread.is_alive():
@@ -148,6 +148,8 @@ if __name__ == '__main__':
     pwm.start()
     led = NavioLED(pwm)
     run = True
+    with open('/home/kherhozen/sources/Navio/Python/conf_led', 'w') as f:
+        f.write("1,0,1,0")
     while run:
         with open('/home/kherhozen/sources/Navio/Python/conf_led', 'r') as f:
             conf_led = f.read().split(',')
