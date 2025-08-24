@@ -84,7 +84,7 @@ class NavioLED:
         self.color = color
         self.saturation = saturation
         self.pulse_run = False
-        self.pulse_thread = threading.Thread(target=self.pulse_manager())
+        self.pulse_thread = threading.Thread(target=self.pulse_manager)
 
     def set_color(self, color=(1.0, 1.0, 1.0)):
         self.color = color
@@ -147,7 +147,6 @@ if __name__ == '__main__':
     pwm = NavioPWM()
     pwm.start()
     led = NavioLED(pwm)
-    t = threading.Thread(target=led.pulse())
     while run:
         with open('/home/kherhozen/sources/Navio/Python/conf_led', 'r') as f:
             conf_led = f.read().split(',')
