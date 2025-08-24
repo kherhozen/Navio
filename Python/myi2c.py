@@ -84,7 +84,7 @@ class NavioLED:
         self.color = color
         self.saturation = saturation
         self.pulse_run = False
-        self.pulse_thread = threading.Thread(target=self.pulse_manager)
+        self.pulse_thread = None
 
     def set_color(self, color=(1.0, 1.0, 1.0)):
         self.color = color
@@ -101,19 +101,17 @@ class NavioLED:
         self.pwm.stop()
 
     def on(self):
-        if self.pulse_thread.is_alive():
-            print(self.pulse_thread)
-            print(self.pulse_thread.is_alive())
+        if self.pulse_thread:
             self.pulse_run = False
             self.pulse_thread.join()
-            print(self.pulse_thread)
-            print(self.pulse_thread.is_alive())
+            self.pulse_thread = None
         self.set(self.color, self.saturation)
 
     def off(self):
-        if self.pulse_thread.is_alive():
+        if self.pulse_thread:
             self.pulse_run = False
             self.pulse_thread.join()
+            self.pulse_thread = None
         self.set((0, 0, 0), 0)
 
     def pulse_manager(self, on=0.0, off=0.0, fade_in=1.0, fade_out=0.5, cycles=0):
@@ -142,8 +140,9 @@ class NavioLED:
         self.set(self.color, 1.0)
 
     def pulse(self):
-        if not self.pulse_thread.is_alive():
+        if not self.pulse_thread:
             self.pulse_run = True
+            self.pulse_thread = threading.Thread(target=self.pulse_manager)
             self.pulse_thread.start()
 
 
