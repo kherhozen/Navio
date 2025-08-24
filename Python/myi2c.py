@@ -147,6 +147,7 @@ if __name__ == '__main__':
     pwm = NavioPWM()
     pwm.start()
     led = NavioLED(pwm)
+    run = True
     while run:
         with open('/home/kherhozen/sources/Navio/Python/conf_led', 'r') as f:
             conf_led = f.read().split(',')
