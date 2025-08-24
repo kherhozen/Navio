@@ -2,6 +2,7 @@ import smbus
 import time
 from signal import signal, SIGTERM
 from gpiozero import LED
+import threading
 
 class NavioPWM:
 
@@ -78,45 +79,75 @@ class NavioLED:
     PURPLE = (1, 0, 1)
     CYAN = (0, 1, 1)
 
-    def __init__(self, pwm):
+    def __init__(self, pwm, color=(1.0, 1.0, 1.0), saturation=1.0):
         self.pwm = pwm
+        self.color = color
+        self.saturation = saturation
+        self.pulse_run = False
+        self.pulse_thread = threading.Thread(target=self.pulse_manager())
 
-    def on(self, color=(1.0, 1.0, 1.0), saturation=1.0):
+    def set_color(self, color=(1.0, 1.0, 1.0)):
+        self.color = color
+
+    def set_saturation(self, saturation=1.0):
+        self.saturation = saturation
+
+    def set(self, color, saturation):
         self.pwm.set_pwm(self.__R_CHANNEL, 1 - color[0]*saturation)
         self.pwm.set_pwm(self.__G_CHANNEL, 1 - color[1]*saturation)
         self.pwm.set_pwm(self.__B_CHANNEL, 1 - color[2]*saturation)
 
-    def off(self):
-        self.on((0, 0, 0))
+    def reset(self):
+        self.pwm.stop()
 
-    def pulse(self, color=(1.0, 1.0, 1.0), on=0.0, off=0.0, fade_in=1.0, fade_out=0.5, cycles=2):
+    def on(self):
+        if self.pulse_thread.is_alive():
+            self.pulse_run = False
+            self.pulse_thread.join()
+        self.set(self.color, self.saturation)
+
+    def off(self):
+        if self.pulse_thread.is_alive():
+            self.pulse_run = False
+            self.pulse_thread.join()
+        self.set((0, 0, 0), 0)
+
+    def pulse_manager(self, on=0.0, off=0.0, fade_in=1.0, fade_out=0.5, cycles=0):
         i = 0
         step = 0.01
         on_steps = int(on/step)
         off_steps = int(off/step)
         fade_in_steps = int(fade_in/step)
         fade_out_steps = int(fade_out/step)
-        while i < cycles:
+        while self.pulse_run and (cycles == 0 or i < cycles):
             self.off()
-            for s in range(off_steps):
-                time.sleep(step)
-            for s in range(fade_in_steps):
-                self.on(color, s/(fade_in_steps-1))
-                time.sleep(step)
-            for s in range(on_steps):
-                time.sleep(step)
-            for s in range(fade_out_steps):
-                self.on(color, (1-s/(fade_out_steps-1)))
+            s = 0
+            while self.pulse_run:
+                if off_steps < s < off_steps + fade_in_steps:
+                    self.set_saturation((s-off_steps)/(fade_in_steps-1))
+                    self.on()
+                elif off_steps + fade_in_steps + on_steps < s < off_steps + fade_in_steps + on_steps + fade_out_steps:
+                    self.set_saturation(1-(s-off_steps-fade_in_steps-on_steps)/(fade_out_steps-1))
+                    self.on()
+                elif s >= off_steps + fade_in_steps + on_steps + fade_out_steps:
+                    break
+                s += 1
                 time.sleep(step)
             i += 1
+        self.pulse_run = False
+        self.on()
+
+    def pulse(self):
+        if not self.pulse_thread.is_alive():
+            self.pulse_run = True
+            self.pulse_thread.start()
+
 
 if __name__ == '__main__':
     pwm = NavioPWM()
     pwm.start()
     led = NavioLED(pwm)
-    with open('/home/kherhozen/sources/Navio/Python/conf_led', 'w') as f:
-        f.write("1,0,1,0")
-    run = True
+    t = threading.Thread(target=led.pulse())
     while run:
         with open('/home/kherhozen/sources/Navio/Python/conf_led', 'r') as f:
             conf_led = f.read().split(',')
@@ -127,10 +158,13 @@ if __name__ == '__main__':
                 pass
             else:
                 if mode == 0:
+                    led.reset()
                     run = False
-                elif mode == 1:
-                    led.on(rgb)
-                elif mode == 2:
-                    led.pulse(rgb)
+                else:
+                    led.set_color(rgb)
+                    if mode == 1:
+                        led.on()
+                    elif mode == 2:
+                        led.pulse()
         time.sleep(0.01)
     pwm.stop()
