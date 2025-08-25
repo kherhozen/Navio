@@ -163,8 +163,7 @@ if __name__ == '__main__':
                 pass
             else:
                 if mode == 0:
-                    led.reset()
-                    run = False
+                    led.off()
                 else:
                     led.set_color(rgb)
                     if mode == 1:
