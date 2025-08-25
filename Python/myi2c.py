@@ -1,6 +1,6 @@
 import smbus
 import time
-from signal import signal, SIGTERM
+from signal import signal, SIGTERM, SIGINT
 from gpiozero import LED
 import threading
 
@@ -145,8 +145,12 @@ class NavioLED:
             self.pulse_thread = threading.Thread(target=self.pulse_manager)
             self.pulse_thread.start()
 
+def clean(signum, frame):
+    print(frame.f_locals)
 
 if __name__ == '__main__':
+    signal(SIGTERM, clean)
+    signal(SIGINT, clean)
     pwm = NavioPWM()
     pwm.start()
     led = NavioLED(pwm)
