@@ -166,7 +166,6 @@ if __name__ == '__main__':
         with open('/home/kherhozen/sources/Navio/Python/conf_led', 'r') as f:
             conf_led = f.read().split(',')
             try:
-                print(conf_led)
                 mode = int(conf_led[0])
                 rgb = tuple(map(float, conf_led[1:4]))
             except ValueError:
