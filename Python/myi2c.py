@@ -30,6 +30,7 @@ class NavioPWM:
     __ALLCALL = 0x01
     __INVRT = 0x10
     __OUTDRV = 0x04
+    __FULL_OFF = 0x10
 
     def __init__(self):
         self.bus = smbus.SMBus(1)
@@ -53,18 +54,23 @@ class NavioPWM:
             self.bus.write_byte_data(self.address, self.__LED0_OFF_H + 4 * channel, off >> 8)
 
     def start(self):
-        self.pin_enable.off() # Reversed logic
-        self.set_all_pwm(0, 0)
-        self.bus.write_byte_data(self.address, self.__MODE2, self.__OUTDRV)
-        self.bus.write_byte_data(self.address, self.__MODE1, self.__ALLCALL)
+        self.bus.write_byte_data(self.address, self.__ALL_LED_OFF_H, self.__FULL_OFF)
+        # self.bus.write_byte_data(self.address, self.__MODE2, self.__OUTDRV)
+        # self.bus.write_byte_data(self.address, self.__MODE1, self.__ALLCALL)
         time.sleep(0.005)  # wait for oscillator
         mode1 = self.bus.read_byte_data(self.address, self.__MODE1)
         mode1 = mode1 & ~self.__SLEEP  # wake up (reset sleep)
         self.bus.write_byte_data(self.address, self.__MODE1, mode1)
         time.sleep(0.005)  # wait for oscillator
+        self.pin_enable.off()  # Reversed logic
 
-    def stop(self):
-        self.pin_enable.on()
+    def shutdown(self):
+        self.pin_enable.off()  # Reversed logic
+        self.bus.write_byte_data(self.address, self.__ALL_LED_OFF_H, self.__FULL_OFF)
+        time.sleep(0.005)  # wait for oscillator
+        mode1 = self.bus.read_byte_data(self.address, self.__MODE1)
+        mode1 = mode1 & self.__SLEEP  # go to sleep
+        self.bus.write_byte_data(self.address, self.__MODE1, mode1)
 
 class NavioLED:
 
@@ -97,15 +103,12 @@ class NavioLED:
         self.pwm.set_pwm(self.__G_CHANNEL, 1 - color[1]*saturation)
         self.pwm.set_pwm(self.__B_CHANNEL, 1 - color[2]*saturation)
 
-    def reset(self):
-        self.pwm.stop()
-
     def on(self):
         if self.pulse_thread:
             self.pulse_run = False
             self.pulse_thread.join()
             self.pulse_thread = None
-        self.set(self.color, self.saturation)
+        self.set(self.color, 1)
 
     def off(self):
         if self.pulse_thread:
@@ -163,7 +166,7 @@ if __name__ == '__main__':
                 pass
             else:
                 if mode == 0:
-                    led.reset()
+                    led.off()
                     run = False
                 else:
                     led.set_color(rgb)
@@ -172,4 +175,4 @@ if __name__ == '__main__':
                     elif mode == 2:
                         led.pulse()
         time.sleep(0.01)
-    pwm.stop()
+    pwm.shutdown()
