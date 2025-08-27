@@ -160,6 +160,7 @@ if __name__ == '__main__':
     pwm.start()
     led = NavioLED(pwm)
     run = True
+    status = "sleep"
     with open('/home/kherhozen/sources/Navio/Python/conf_led', 'w') as f:
         f.write("2,0,1,0")
     while run:
@@ -173,13 +174,19 @@ if __name__ == '__main__':
             else:
                 if mode == 0:
                     run = False
+                    status = "sleep"
                 elif mode == 1:
                     led.off()
+                    status = "off"
                 else:
                     led.set_color(rgb)
                     if mode == 2:
                         led.on()
+                        status = "on"
                     elif mode == 3:
                         led.pulse()
+                        status = "pulse"
+                with open('/home/kherhozen/sources/Navio/Python/conf_led_status', 'w') as fout:
+                    fout.write(status)
         time.sleep(0.01)
     pwm.shutdown()
