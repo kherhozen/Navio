@@ -151,6 +151,7 @@ class NavioLED:
 def signal_handler(signum, frame):
     with open('/home/kherhozen/sources/Navio/Python/conf_led', 'w') as f:
         f.write("0,0,0,0")
+    print("see ya")
 
 
 if __name__ == '__main__':
