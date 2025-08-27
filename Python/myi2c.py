@@ -148,8 +148,13 @@ class NavioLED:
             self.pulse_thread = threading.Thread(target=self.pulse_manager)
             self.pulse_thread.start()
 
+def signal_handler(signum, frame):
+    print(frame)
+
 
 if __name__ == '__main__':
+    signal(SIGTERM, signal_handler)
+    signal(SIGINT, signal_handler)
     pwm = NavioPWM()
     pwm.start()
     led = NavioLED(pwm)
