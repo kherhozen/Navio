@@ -195,4 +195,5 @@ if __name__ == '__main__':
                     current_mode = mode
                     current_rgb = rgb
         time.sleep(0.025)
+    led.off()
     pwm.shutdown()
